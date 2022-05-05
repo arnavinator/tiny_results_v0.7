@@ -17,6 +17,7 @@ from tensorflow.keras.models import load_model
 from qkeras.utils import _add_supported_quantized_objects
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score
+import cv2
 
 
 # UPLOAD MODEL
@@ -30,11 +31,15 @@ model = keras.models.load_model(model_file_path, custom_objects = co)
 print(model.summary())
 
 
-# UPLOAD DOWNSAMPLE IMAGES or TAKE ALL TEST IMAGES AND DOWNSAMPLE
- _, (X_test, y_test) = cifar10.load_data()
+# UPLOAD TEST IMAGES
+_, (X_test, y_test) = cifar10.load_data()
 X_test = np.ascontiguousarray(X_test, dtype=np.float32)  # doesn't change shape, just turns every element to float instead of int
 X_test = X_test/256.
 
+num_classes = 10
+y_test = tf.keras.utils.to_categorical(y_test, num_classes)   # one-hot encoding! ex. turn y_test of shape (2,) and 10 classes to shape (2, 10)
+
+# METRICS FOR MODEL W/ NON-DOWNSAMPLED IMGS
 # get predictions
 y_pred = model.predict(X_test)
 
@@ -46,7 +51,11 @@ auc = roc_auc_score(y_test, y_pred, average='weighted', multi_class='ovr')
 print('Model test accuracy = %.3f' % evaluation[1])
 print('Model test weighted average AUC = %.3f' % auc)
 
-num_classes = 10
-y_test = tf.keras.utils.to_categorical(y_test, num_classes)  # one-hot encoding! turn y_test of shape (2,) and 10 classes to shape (2, 10) 
+# I think this is the same as model evaluate
 y_keras = y_pred
 print("Keras Accuracy:  {}".format(accuracy_score(np.argmax(y_test, axis=1), np.argmax(y_keras, axis=1))))
+
+
+# DOWNSAMPLE TESTIMAGES
+for i in range(0, X_test.shape[0]):
+    X_test[i, :,:]
