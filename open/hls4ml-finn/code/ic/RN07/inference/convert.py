@@ -95,17 +95,18 @@ def main(args):
         y_test = y_test[:2]
     num_samples = X_test.shape[0]
 
-    X_test = np.ascontiguousarray(X_test, dtype=np.float32)
+    X_test = np.ascontiguousarray(X_test, dtype=np.float32)  # doesn't change shape, just turns every element to float instead of int
     if not apply_patches:
         X_test = X_test/256.
     num_classes = 10
-    y_test = tf.keras.utils.to_categorical(y_test, num_classes)
-
+    y_test = tf.keras.utils.to_categorical(y_test, num_classes)  # one-hot encoding! turn y_test of shape (2,) and 10 classes to shape (2, 10) 
+ 
+    # y_keras is one-hot encoded
     if apply_patches:
         y_keras = model_rescale.predict(X_test)
     else:
         y_keras = model.predict(X_test)
-
+    
     print("Keras Accuracy:  {}".format(accuracy_score(np.argmax(y_test, axis=1), np.argmax(y_keras, axis=1))))
 
     np.save(os.path.join(save_dir, 'y_keras.npy'), y_keras)

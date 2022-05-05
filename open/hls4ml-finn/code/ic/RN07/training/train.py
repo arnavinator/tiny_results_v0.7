@@ -36,7 +36,7 @@ def main(args):
     input_shape = [32, 32, 3]
     num_classes = 10
     with open(args.config) as stream:
-        config = yaml.safe_load(stream)
+        config = yaml.safe_load(stream)    # loads RN07.yml params as a 2D array
     num_filters = config['model']['filters']
     kernel_sizes = config['model']['kernels']
     strides = config['model']['strides']
@@ -71,7 +71,9 @@ def main(args):
     lr_decay = config['fit']['compile']['lr_decay']
 
     # load dataset
+    # X_test has shape (1000, 32,32,3) with each entry 0-255, y_test has shape (1000,1) with entry 0-9 for each class
     (X_train, y_train), (X_test, y_test) = cifar10.load_data()
+    # division to make each element of X to be between 0 and 1 so that its valid input to NN
     X_train, X_test = X_train/256., X_test/256.
 
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
@@ -81,6 +83,10 @@ def main(args):
         y_test = y_test * 2 - 1
 
     # define data generator
+    # image augmentation technique is a great way to expand the size of your dataset... come up with new transformed images from your original dataset
+    # Keras ImageDataGenerator lets you augment your images in real-time while your model is still training! You can apply any 
+    # random transformations on each training image as it is passed to the model. This will not only make your model robust but will also save up on the overhead memory
+    # from manually uploading augmented images into your dataset
     datagen = ImageDataGenerator(
         rotation_range=15,
         width_shift_range=0.1,
