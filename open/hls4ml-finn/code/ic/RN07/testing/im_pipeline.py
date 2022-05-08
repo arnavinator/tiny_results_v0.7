@@ -18,6 +18,7 @@ from qkeras.utils import _add_supported_quantized_objects
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score
 import cv2
+import time
 
 
 # UPLOAD MODEL
@@ -39,10 +40,16 @@ def load_images_from_folder(folder):
             images.append(img)
     return np.array(images)
 
-while (SOME CONDITIONG):
-    # read image somehow
+
+# record for 10 seconds
+counter = 0
+camera = cv2.VideoCapture(1)
+
+while counter < 10:
+    counter += 1
+    return_value, img = camera.read()
+
     # img = cv2.imread(os.path.join(folder,filename))
-    img = 32x32x3
 
     # if input is rectangular, find shortest side of rectangle image
     smallest_dim = np.min(np.array([img.shape[0], img.shape[1]]))
@@ -61,6 +68,7 @@ while (SOME CONDITIONG):
 
     # have model predict the image
     y_pred = model.predict(X_dtest)
+
 
     if y_pred == 0:
         print("Automobile")
@@ -82,3 +90,5 @@ while (SOME CONDITIONG):
         print("Ship")
     elif y_pred == 9:
         print("Truck")
+
+del(camera)
